@@ -62,19 +62,6 @@ def get_roundness(hull):
     areahull = cv2.contourArea(hull)
     perimeterhull = cv2.arcLength(hull, closed=True)
     return (4 * np.pi * areahull) / (perimeterhull ** 2)
-
-
-def get_centroid(contour):
-    #TODO da vedere rispetto a cosa è calcolato il centro
-    moments = cv2.moments(contour)
-    
-    if moments["m00"] != 0:
-        cx = int(moments["m10"] / moments["m00"]) 
-        cy = int(moments["m01"] / moments["m00"])
-        return cx, cy 
-    else:
-        print("Hull area is zero: cannot calculate the centroid")
-        return None
     
 def get_ratio_head(contour):
     if len(contour) >= 5:  # fitEllipse requires at least 5 points

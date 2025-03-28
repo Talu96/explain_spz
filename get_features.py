@@ -11,17 +11,9 @@ from skimage.color import rgb2hed
 import matplotlib.pyplot as plt
 
 
-def get_mean_color(image):
-    return [round(x, 2) for x in cv2.mean(image)[:3]]
-
 def get_img_area_ratio(image):
     img_shape = image.shape[:2]
     return img_shape[0]*img_shape[1], round(img_shape[0]/img_shape[1], 2)
-
-def get_img_saturation_diff(img_hsv1, img_hsv2):
-    img1 = round(img_hsv1[:, :, 1].mean(), 2)
-    img2 = round(img_hsv2[:, :, 1].mean(), 2)
-    return round(img1 - img2, 2)
 
 def get_red_per(img_hsv, img):
 

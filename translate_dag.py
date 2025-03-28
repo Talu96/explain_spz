@@ -62,15 +62,15 @@ def parse_rule(rule):
     """
     Estrae la classe predetta, i predicati con vincoli e i predicati negati da una stringa di regola logica.
     
-    :param rule: Stringa della regola logica (es. 'pred_label("m") :- headArea(V_0_a), not missingTail, V_0_a <= 2665, V_0_a >= 2480.')
+    :param rule: Stringa della regola logica (es. 'pred_label("m") :- headArea(V_0_a), not detachedHead, V_0_a <= 2665, V_0_a >= 2480.')
     :return: Tuple (classe_predetta, predicati_con_vincoli, predicati_negati)
     """
     # Trova la classe predetta
     class_match = re.search(r'pred_label\(\"(.*?)\"\)', rule)
     class_pred = class_match.group(1) if class_match else None
 
-    # Trova i predicati senza argomenti (es. missingTail)
-    simple_predicates = re.findall(r'(\w+[,\.])', rule)
+    # Trova i predicati senza argomenti (es. detachedHead)
+    simple_predicates = re.findall(r'([a-zA-Z]+[,\.])', rule)
     simple_predicates = [s[:-1] for s in simple_predicates]
     
     # Trova i predicati (es. headArea(V_0_a))
@@ -79,7 +79,7 @@ def parse_rule(rule):
     # Trova le condizioni sui vincoli (es. V_0_a <= 2665)
     constraints = re.findall(r'(V_[0-9]_[a-zA-Z0-9_]+\s*[<>=]+\s*[\d.]+)', rule)
 
-    # Trova i predicati negati (es. not missingTail)
+    # Trova i predicati negati (es. not detachedHead)
     negated_predicates = re.findall(r'not (\w+)', rule)
 
     # Crea un dizionario per associare variabili a vincoli
@@ -119,7 +119,7 @@ def explain(p, labels):
     expl = f"The {'spermatozoa is' if class_pred not in class_map.values() else 'predicted class is'} {class_pred} because:\n"
     
     constraint_map = {
-        "red": "- the red percentage is {red} which is in the range: {range}\n",
+        "red": "- the spermatozoa is {red}\n",
         "ratio": "- the ratio of the spermatozoa is {ratio} which is in the range: {range}\n",
         "ratioHead": "- the ratio of the head of the spermatozoa is {ratioHead} which is in the range: {range}\n",
         "headRoundness": "- the roundness of the head of the spermatozoa is {headRoundness} which is in the range: {range}\n",
@@ -128,27 +128,37 @@ def explain(p, labels):
     }
     
     predicate_map = {
-        "bubbleHead": "- there is a cytoplasmic bubble at the attachment of the head\n",
-        "curledTail": "- the tail is curled\n",
-        "bubbleTail": "- there is a cytoplasmic bubble in the middle of the tail\n",
-        "missingTail": "- the tail is missing\n",
-        "singleCoilTail": "- there is a single coil in the tail\n",
-        "overtunedHead": "- the head is overtuned with respect to the tail\n"
+        "proximalDroplets": "- there is a proximal droplets\n",
+        "dagDefect": "- there is a dag defect\n",
+        "distalDroplets": "- there is a distal droplets\n",
+        "detachedHead": "- it is a detached head\n",
+        "bentCoiledTail": "- the tail is bent or coiled\n",
+        "bentNeck": "- the neck is bent\n"
     }
 
     for pr in predicates_with_constraints:
         key = pr[0].split("(")[0]
         if pr[1]:
-            expl += constraint_map.get(key, "").format(**labels, range=pr[1])
+            a = constraint_map.get(key, "")
+            if "{red}" in a:
+                if class_pred == "dead":
+                    a = a.replace("{red}", "red")
+                else:
+                    a = a.replace("{red}", "white")
+                expl += a
+            else:
+                expl += a.format(**labels, range=pr[1])
         else:
             expl += predicate_map.get(key, "")
 
     for s in simple_predicates:
-        expl += predicate_map.get(s, "")
+        if s not in negated_predicates:
+            expl += predicate_map.get(s, "")
 
     for neg in negated_predicates:
         if neg in predicate_map:
-            expl += "- there is not " + predicate_map[neg][4:]
+            expl +=  predicate_map[neg].split("is")[0] + "is not" + predicate_map[neg].split("is")[1]
+
 
     return expl
 
@@ -183,7 +193,10 @@ def get_explanation(js, type):
     correct_pred_label = find_pred_label_nodes(dag_json, linked) 
 
     if not correct_pred_label:
-        return "Sorry, there is no valid prediction label."
+        if type == "an":
+            return "Sorry, there is no explanation for the anomaly predicted."
+        else:
+            return "Sorry, there is no explanation for the vitality predicted."
     
     eheh = correct_pred_label[0]["id"]
     linked = find_links_with_source(dag_json, eheh)

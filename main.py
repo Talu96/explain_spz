@@ -50,7 +50,7 @@ def generate_asp(features):
                 lp_file.write(f"lenghtHead({int(round(f[4]['lenght']))}).\n")
                 lp_file.write(f"ratioHead({int(round(f[4]['ratio']))}).\n")
 
-            attributes = ["bubbleHead", "curledTail", "bubbleTail", "missingTail", "singleCoilTail", "overtunedHead"]
+            attributes = ["proximalDroplets", "dagDefect", "distalDroplets", "detachedHead", "bentCoiledTail", "bentNeck"]
             
             for attr_index, attr_name in enumerate(attributes):
                 if f[5][attr_index] == 1:   #yes
@@ -167,19 +167,19 @@ def show_image_with_RB(image, label):
     labels = ["Yes", "No", "Not sure"]  
 
     ax_radio = plt.axes(group_positions[0])
-    ax_radio.text(0, 0.95, "Bubble at the head attachment", transform=ax_radio.transAxes, ha='left', va='bottom', fontsize=10, fontweight='bold')
+    ax_radio.text(0, 0.95, "Proximal droplets", transform=ax_radio.transAxes, ha='left', va='bottom', fontsize=10, fontweight='bold')
     rb1 = RadioButtons(ax_radio, labels, active=1)
     for r in rb1.labels: r.set_fontsize(7)
     rb1.on_clicked(on_select_shapes(0))
     
     ax_radio = plt.axes(group_positions[1])  
-    ax_radio.text(0, 0.95, "Curled tail", transform=ax_radio.transAxes, ha='left', va='bottom', fontsize=10, fontweight='bold')
+    ax_radio.text(0, 0.95, "Dag defect tail", transform=ax_radio.transAxes, ha='left', va='bottom', fontsize=10, fontweight='bold')
     rb3 = RadioButtons(ax_radio, labels, active=1)
     for r in rb3.labels: r.set_fontsize(7)
     rb3.on_clicked(on_select_shapes(1))
         
     ax_radio = plt.axes(group_positions[2])  
-    ax_radio.text(0, 0.95, "Bubble in the tail", transform=ax_radio.transAxes, ha='left', va='bottom', fontsize=10, fontweight='bold')
+    ax_radio.text(0, 0.95, "Distal droplets", transform=ax_radio.transAxes, ha='left', va='bottom', fontsize=10, fontweight='bold')
     rb7 = RadioButtons(ax_radio, labels, active=1)
     for r in rb7.labels: r.set_fontsize(7)
     rb7.on_clicked(on_select_shapes(2))
