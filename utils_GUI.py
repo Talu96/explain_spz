@@ -1,9 +1,6 @@
-import matplotlib.pyplot as plt
 import tkinter as tk
-from tkinter import Button, Label, Radiobutton, IntVar
 from PIL import Image, ImageTk
 
-from ultralytics import YOLO
 from PIL import Image
 
 from expl import explain_asp
