@@ -154,7 +154,6 @@ def find_head_circles(image, min_brightness_threshold=0, min_radius=15, max_radi
             mean_inner = cv2.mean(gray, mask=mask_inner)[0]
 
             if mean_inner > min_brightness_threshold:
-                # cv2.circle(image, (x, y), r, (0, 255, 150), 2)
                 detected_circles.append([x, y, r])
 
     return detected_circles
@@ -176,7 +175,7 @@ def get_head_contour(image):
         s = np.linspace(0, 2 * np.pi, 500)
         n = 0
         for x, y, radius in detected_circles:
-            r_init = y + radius * 3 * np.sin(s) # pre-calculate initial snake coordinates
+            r_init = y + radius * 3 * np.sin(s)
             c_init = x + radius * 3 * np.cos(s)
 
             init = np.array([r_init, c_init]).T
@@ -187,13 +186,13 @@ def get_head_contour(image):
             info.append(cntr.get_info_snake())
             snakes.append(snake)
 
-            # Draw the snake on the COLOR image using OpenCV functions
-            for i in range(len(snake) - 1):  # Draw lines connecting the snake points
+            # Disegna lo snake sull'immagine
+            for i in range(len(snake) - 1):
                 x1, y1 = int(snake[i, 1]), int(snake[i, 0])
                 x2, y2 = int(snake[i+1, 1]), int(snake[i+1, 0])
                 cv2.line(image_color, (x1, y1), (x2, y2), colors[n%len(colors)], 2)
-            cv2.putText(image_color, str(n), (10 * n, 40), cv2.FONT_HERSHEY_PLAIN, 1, colors[n%len(colors)], 2)
-            n = n + 1
+
+            n += 1
 
         return info, snakes, image_color
     else:

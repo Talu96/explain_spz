@@ -21,7 +21,6 @@ class BoxSelector:
 
         self.model = YOLO("best.pt")
 
-        # Prompt per selezionare immagine
         welcome_text = ("Welcome to the XASP-BSC App!\n\n"
                         "This application classifies spermatozoa in microscope-acquired images and explains its predictions.\n"
                         "It distinguishes between alive and dead spermatozoa, as well as normal spermatozoa vs those with anomalies. \n\n"
@@ -45,11 +44,9 @@ class BoxSelector:
         self.original_width, self.original_height = self.image.size
         self.results = self.model(file_path)
 
-        # Rimuovi upload
         self.upload_label.grid_forget()
         self.upload_button.grid_forget()
 
-        # Info testuale
         self.main_frame = Frame(self.root, bg="#e6e6e6", padx=20, pady=20)
         self.main_frame.grid(row=0, column=0, sticky="nsew", pady=(10, 0))
 
@@ -60,7 +57,6 @@ class BoxSelector:
                                    justify="center", bg="#e6e6e6")
         self.text_label.pack(side="top", pady=(10, 20))
 
-        # Canvas
         self.canvas_frame = Frame(self.root, bg="#e6e6e6")
         self.canvas_frame.grid(row=1, column=0, sticky="nsew")
         self.canvas_frame.grid_rowconfigure(0, weight=1)
@@ -71,7 +67,6 @@ class BoxSelector:
         self.canvas.bind("<Configure>", self.resize_and_draw)
         self.canvas.bind("<Button-1>", self.on_click)
 
-        # Bottone Explain
         self.button_frame = Frame(self.root, bg="#e6e6e6")
         self.button_frame.grid(row=2, column=0, pady=20)
         self.explain_button = Button(self.button_frame, text="Explain", font=("Segoe UI", 12),
@@ -90,30 +85,23 @@ class BoxSelector:
         self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
     def resize_and_draw(self, event):
-        # Ottieni le dimensioni disponibili del canvas (escludendo padding/bordi)
         canvas_w = self.canvas.winfo_width()
         canvas_h = self.canvas.winfo_height()
         
-        # Calcola il rapporto di scala mantenendo le proporzioni
         scale = min(canvas_w / self.original_width, canvas_h / self.original_height)
         new_w = int(self.original_width * scale)
         new_h = int(self.original_height * scale)
         
-        # Ridimensiona l'immagine mantenendo le proporzioni
         resized = self.image.resize((new_w, new_h), Image.LANCZOS)
         self.tk_image = ImageTk.PhotoImage(resized)
         
-        # Cancella tutto e ridisegna
         self.canvas.delete("all")
         
-        # Calcola le coordinate per centrare l'immagine
         x_pos = (canvas_w - new_w) // 2
         y_pos = (canvas_h - new_h) // 2
         
-        # Crea l'immagine centrata
         self.canvas.create_image(x_pos, y_pos, image=self.tk_image, anchor="nw")
         
-        # Ridisegna le bounding box con le nuove coordinate
         self.draw_boxes(scale, x_pos, y_pos)
 
     def draw_boxes(self, scale, offset_x, offset_y):
@@ -128,13 +116,11 @@ class BoxSelector:
                 x1, y1, x2, y2 = map(int, box)
                 label = CLASS_NAMES[int(class_id)]
 
-                # Scala le coordinate
                 x1s = int(x1 * scale + offset_x)
                 y1s = int(y1 * scale + offset_y)
                 x2s = int(x2 * scale + offset_x)
                 y2s = int(y2 * scale + offset_y)
 
-                # Bounding box (colore rosso di default)
                 rect = self.canvas.create_rectangle(x1s, y1s, x2s, y2s, outline="red", width=2)
 
                 # Posizione dinamica della label
@@ -163,26 +149,24 @@ class BoxSelector:
                     "coords": (x1s, y1s, x2s, y2s), # per visualizzazione
                     "original_coords": (x1, y1, x2, y2),  
                     "label": label,
-                    "label_bg": text_bg,  # Memorizziamo l'ID del background della label
-                    "text": text  # Memorizziamo l'ID del testo
+                    "label_bg": text_bg,  # memorizzo l'ID del background della label
+                    "text": text  # memorizzo l'ID del testo
                 })
 
     def on_click(self, event):
         x, y = event.x, event.y
         found = False
         for item in self.rect_items:
-            self.canvas.itemconfig(item["rect"], outline="red")  # Deseleziona tutte le box
-            # Reset del colore della label a rosso
-            self.canvas.itemconfig(item["label_bg"], fill="red")
+            self.canvas.itemconfig(item["rect"], outline="red")  # deseleziona tutte le box
+            self.canvas.itemconfig(item["label_bg"], fill="red") # reset del colore della label a rosso
             self.canvas.itemconfig(item["text"], fill="white")
         
         for item in self.rect_items:
             x1, y1, x2, y2 = item["coords"]
             if x1 <= x <= x2 and y1 <= y <= y2:
-                # Cambia la box in verde
+                # cambia la box in verde
                 self.canvas.itemconfig(item["rect"], outline="green")
-                # Aggiorna la label a verde
-                self.canvas.itemconfig(item["label_bg"], fill="green")
+                self.canvas.itemconfig(item["label_bg"], fill="green") # aggiorna la label a verde
                 self.canvas.itemconfig(item["text"], fill="white")
 
                 self.selection["rect"] = item["original_coords"]

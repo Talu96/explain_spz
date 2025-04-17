@@ -31,34 +31,31 @@ def show_image_with_AR(image, snakes):
         root = tk.Toplevel(parent)
 
     center_window(root)
-    root.title("Seleziona snake")
+    root.title("Select a contour")
     root.configure(bg="#f1f2f3")
     
-    # Configurazione griglia principale
     root.grid_columnconfigure(0, weight=1)  # Colonna immagine
     root.grid_columnconfigure(1, weight=0)  # Colonna radio buttons
     root.grid_rowconfigure(1, weight=1)     # Riga centrale espandibile
 
-    # Titolo (span su 2 colonne)
-    tk.Label(root, text="Choose one snake", 
+    tk.Label(root, text="Select the contour that better approximate the head", 
             font=("Arial", 14, "bold"), bg="#f1f2f3"
             ).grid(row=0, column=0, columnspan=2, pady=10, sticky="n")
 
-    # Frame per l'immagine (sinistra) con canvas
+    # Frame per l'immagine (sinistra)
     img_frame = tk.Frame(root, bg="#f1f2f3")
     img_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
     
     img_canvas = tk.Canvas(img_frame, bg="#f1f2f3", highlightthickness=0)
     img_canvas.pack(expand=True, fill="both")
 
-    # Carica immagine originale
     img = Image.fromarray(image)
     img_width, img_height = img.size
     tk_img = None  # Placeholder per l'immagine Tkinter
 
     def resize_image(event=None):
         nonlocal tk_img
-        # Calcola dimensioni mantenendo aspect ratio
+        
         canvas_width = img_canvas.winfo_width()
         canvas_height = img_canvas.winfo_height()
         
@@ -83,7 +80,6 @@ def show_image_with_AR(image, snakes):
     radio_frame = tk.Frame(root, bg="#f1f2f3")
     radio_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
 
-    # Aggiungi scrollbar
     canvas = tk.Canvas(radio_frame, bg="#f1f2f3", highlightthickness=0)
     scrollbar = tk.Scrollbar(radio_frame, orient="vertical", command=canvas.yview)
     scrollable_frame = tk.Frame(canvas, bg="#f1f2f3")
@@ -99,18 +95,19 @@ def show_image_with_AR(image, snakes):
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
-    # Variabile per radio button
     selected_var = tk.IntVar(value=0)
+    colors = ["#e6194b", "#3cbf4b", "#ffe119", "#0082c8", "#f58231", "#911eb4", "#46f0f0", "#f032e6", "#d2f500", "#fabeD4", "#008080", "#dcbffe", "#aa6a28", "#fffac8", "#800000", "#aaffc3", "#808000", "#ffd7b4", "#000080", "#808080", "#b03060", "#006400", "#00ff7f", "#7b68ee"]
 
+    n = 0
     # Radio buttons
     for idx in range(len(snakes)):
-        tk.Radiobutton(scrollable_frame, text=f"Snake {idx}", 
+        tk.Radiobutton(scrollable_frame, text=f"Contour {idx}", 
                       variable=selected_var, value=idx,
-                      bg="#f1f2f3", font=("Arial", 10), 
+                      bg=colors[n%len(colors)], font=("Arial", 10), 
                       anchor="w"
                       ).pack(fill="x", padx=10, pady=5)
+        n = n + 1
 
-    # Frame pulsanti (span 2 colonne)
     button_frame = tk.Frame(root, bg="#f1f2f3")
     button_frame.grid(row=2, column=0, columnspan=2, pady=20)
 
@@ -130,7 +127,6 @@ def show_image_with_AR(image, snakes):
              bg="#ff6347", fg="white", font=("Arial", 11, "bold"),
              padx=20, pady=8, relief="flat").pack(side="left", padx=10)
 
-    # Forza primo ridimensionamento
     root.update()
     resize_image()
 
@@ -151,32 +147,28 @@ def show_image_with_RB(image, label):
     root.title("Morphological Annotations")
     root.configure(bg="#f1f2f3")
     
-    # Configurazione della griglia principale
     root.grid_columnconfigure(0, weight=1)  # Colonna immagine
     root.grid_columnconfigure(1, weight=0)  # Colonna radio buttons
     root.grid_rowconfigure(1, weight=1)     # Righe espandibili
 
-    # Titolo (span su 2 colonne)
     title = tk.Label(root, text=f"Class predicted: {label}", 
                     font=("Arial", 14, "bold"), bg="#f1f2f3")
     title.grid(row=0, column=0, columnspan=2, pady=10, sticky="n")
 
-    # Frame per l'immagine (a sinistra)
+    # Frame per l'immagine (sinistra)
     img_frame = tk.Frame(root, bg="#f1f2f3")
     img_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
     
-    # Canvas per l'immagine (per mantenere le proporzioni)
     img_canvas = tk.Canvas(img_frame, bg="#f1f2f3", highlightthickness=0)
     img_canvas.pack(expand=True, fill="both")
 
-    # Carica l'immagine originale
     img = Image.fromarray(image)
     img_width, img_height = img.size
     tk_img = None  # Placeholder per l'immagine Tkinter
 
     def resize_image(event=None):
         nonlocal tk_img
-        # Calcola le nuove dimensioni mantenendo l'aspect ratio
+
         canvas_width = img_canvas.winfo_width()
         canvas_height = img_canvas.winfo_height()
         
@@ -184,12 +176,10 @@ def show_image_with_RB(image, label):
         new_width = int(img_width * ratio)
         new_height = int(img_height * ratio)
         
-        # Ridimensiona l'immagine
         if new_width >0 and new_height >0:
             resized_img = img.resize((new_width, new_height), Image.LANCZOS)
             tk_img = ImageTk.PhotoImage(resized_img)
-        
-        # Centra l'immagine nel canvas
+            
         img_canvas.delete("all")
         x_pos = (canvas_width - new_width) // 2
         y_pos = (canvas_height - new_height) // 2
@@ -199,11 +189,10 @@ def show_image_with_RB(image, label):
     # Bind del ridimensionamento
     img_frame.bind("<Configure>", lambda e: resize_image())
 
-    # Frame per i radio buttons (a destra)
+    # Frame per i radio buttons (destra)
     rb_frame = tk.Frame(root, bg="#f1f2f3")
     rb_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
 
-    # Variabili e labels
     state = [tk.IntVar(value=0) for _ in range(6)]
     anomalies = [
         "Proximal droplet",
@@ -215,7 +204,6 @@ def show_image_with_RB(image, label):
     ]
     label_to_value = {"Yes": 1, "No": 0, "Not sure": 2}
 
-    # Titolo per i radio buttons
     tk.Label(rb_frame, text="Select what opportune:", 
             font=("Arial", 11, "bold"), bg="#f1f2f3").pack(pady=10)
 
@@ -249,7 +237,6 @@ def show_image_with_RB(image, label):
                           bg="#f1f2f3", font=("Arial", 9), anchor="w"
                           ).grid(row=0, column=i+1, padx=5, sticky="w")
 
-    # Pulsante Next (span su 2 colonne)
     def on_confirm():
         root.user_choices = [v.get() for v in state]
         root.destroy()
@@ -259,7 +246,6 @@ def show_image_with_RB(image, label):
                    padx=20, pady=8, relief="flat")
     btn.grid(row=2, column=0, columnspan=2, pady=20)
 
-    # Forza il primo ridimensionamento
     root.update()
     resize_image()
 
@@ -285,11 +271,9 @@ def generate_expl(image):
     root.title("Explanation")
     root.configure(bg="#f1f2f3")
     
-    # Configurazione griglia principale
     root.grid_columnconfigure(0, weight=1)
     root.grid_rowconfigure(0, weight=1)
 
-    # Frame principale
     main_frame = tk.Frame(root, bg="#f1f2f3")
     main_frame.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
     main_frame.grid_columnconfigure(0, weight=1)  # Colonna immagine
@@ -303,14 +287,13 @@ def generate_expl(image):
     img_canvas = tk.Canvas(img_frame, bg="#f1f2f3", highlightthickness=0)
     img_canvas.pack(expand=True, fill="both")
 
-    # Carica immagine originale
     img = Image.fromarray(image)
     img_width, img_height = img.size
     tk_img = None  # Placeholder per l'immagine Tkinter
 
     def resize_image(event=None):
         nonlocal tk_img
-        # Calcola dimensioni mantenendo aspect ratio (max 400x400)
+        
         canvas_width = min(400, img_canvas.winfo_width())
         canvas_height = min(400, img_canvas.winfo_height())
         
@@ -318,7 +301,6 @@ def generate_expl(image):
         new_width = int(img_width * ratio)
         new_height = int(img_height * ratio)
         
-
         if new_width >0 and new_height >0:
             resized_img = img.resize((new_width, new_height), Image.LANCZOS)
             tk_img = ImageTk.PhotoImage(resized_img)
@@ -329,35 +311,30 @@ def generate_expl(image):
         img_canvas.create_image(x_pos, y_pos, anchor="nw", image=tk_img)
         img_canvas.image = tk_img  # Mantieni riferimento
 
-    # Bind ridimensionamento
     img_frame.bind("<Configure>", lambda e: resize_image())
 
-    # Frame per il testo (colonna destra)
+    # Frame per il testo (destra)
     text_column = tk.Frame(main_frame, bg="#f1f2f3")
     text_column.grid(row=0, column=1, sticky="nsew")
     main_frame.grid_rowconfigure(0, weight=1)
     main_frame.grid_columnconfigure(1, weight=1)
-    text_column.grid_rowconfigure(1, weight=1)  # Lo spazio dove centreremo il contenuto
+    text_column.grid_rowconfigure(1, weight=1)
     text_column.grid_columnconfigure(0, weight=1)
 
-    # Titolo sopra al testo, centrato
     title_label = tk.Label(text_column, text="Explanation", 
                         font=("Arial", 16, "bold"), 
                         bg="#f1f2f3", fg="#333")
     title_label.grid(row=0, column=0, pady=(10, 5), sticky="n")
 
-    # Contenitore che centra verticalmente il Text widget
     text_wrapper = tk.Frame(text_column, bg="#f1f2f3")
     text_wrapper.grid(row=1, column=0, sticky="nsew")
     text_wrapper.grid_rowconfigure(0, weight=1)
     text_wrapper.grid_rowconfigure(2, weight=1)
     text_wrapper.grid_columnconfigure(0, weight=1)
 
-    # Spazio sopra (per centraggio)
     top_spacer = tk.Frame(text_wrapper, bg="#f1f2f3")
     top_spacer.grid(row=0, column=0, sticky="nsew")
 
-    # Text widget vero e proprio
     text_widget = tk.Text(text_wrapper, wrap="word", 
                         width=50, height=25, 
                         font=("Arial", 12), 
@@ -366,7 +343,6 @@ def generate_expl(image):
     text_widget.config(state="disabled")
     text_widget.grid(row=1, column=0, sticky="n")
 
-    # Spazio sotto (per centraggio)
     bottom_spacer = tk.Frame(text_wrapper, bg="#f1f2f3")
     bottom_spacer.grid(row=2, column=0, sticky="nsew")
     
@@ -374,7 +350,6 @@ def generate_expl(image):
     text_widget.config(state="disabled")
     text_widget.grid(row=0, column=1, sticky="nsew")
     
-    # Forza primo ridimensionamento
     root.update()
     resize_image()
 

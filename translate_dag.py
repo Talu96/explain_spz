@@ -18,9 +18,11 @@ def find_links_with_source(data, source_id):
     """
     Trova tutti i link che hanno come source un determinato id.
     
-    :param data: Dizionario contenente i dati JSON
-    :param source_id: ID del nodo sorgente
-    :return: Lista di link con il nodo sorgente specificato
+    Param 
+    - data: Dizionario contenente i dati JSON
+    - source_id: ID del nodo sorgente
+    Return
+    - Lista di link con il nodo sorgente specificato
     """
     return [link for link in data.get("links", []) if link.get("source") == source_id]
 
@@ -28,9 +30,11 @@ def find_pred_label_nodes(data, links):
     """
     Trova tutti i nodi target dei link dati che hanno una label che inizia con "pred_label".
     
-    :param data: Dizionario contenente i dati JSON
-    :param links: Lista di link da analizzare
-    :return: Lista di nodi che hanno una label "pred_label"
+    Param 
+    - data: Dizionario contenente i dati JSON
+    - links: Lista di link da analizzare
+    Return
+    - lista di nodi che hanno una label "pred_label"
     """
     target_ids = {link["target"] for link in links}
     return [node for node in data.get("nodes", []) if node["id"] in target_ids and node["label"].startswith("pred_label")] 
@@ -39,9 +43,11 @@ def group_targets_by_link_label(data, nodes):
     """
     Per ogni nodo in nodes, trova tutti i target raggruppati per label del link.
     
-    :param data: Dizionario contenente i dati JSON
-    :param nodes: Lista di nodi sorgente
-    :return: Dizionario con chiavi le label dei link e valori le liste di label dei nodi target
+    Param 
+    - data: Dizionario contenente i dati JSON
+    - nodes: Lista di nodi sorgente
+    Return
+    - Dizionario con chiavi le label dei link e valori le liste di label dei nodi target
     """
     grouped_targets = {}
     for node in nodes:
@@ -62,8 +68,10 @@ def parse_rule(rule):
     """
     Estrae la classe predetta, i predicati con vincoli e i predicati negati da una stringa di regola logica.
     
-    :param rule: Stringa della regola logica (es. 'pred_label("m") :- headArea(V_0_a), not detachedHead, V_0_a <= 2665, V_0_a >= 2480.')
-    :return: Tuple (classe_predetta, predicati_con_vincoli, predicati_negati)
+    Param
+    - rule: Stringa della regola logica (es. 'pred_label("m") :- headArea(V_0_a), not detachedHead, V_0_a <= 2665, V_0_a >= 2480.')
+    Return 
+    - Tuple (classe_predetta, predicati_con_vincoli, predicati_negati)
     """
     # Trova la classe predetta
     class_match = re.search(r'pred_label\(\"(.*?)\"\)', rule)
@@ -168,7 +176,7 @@ def get_label_from_id(data, id):
     
     Param 
     - data: Dizionario contenente i dati JSON
-    Return:
+    Return
     - True se il nodo esiste, None altrimenti
     """
     res = {}

@@ -37,16 +37,16 @@ class Snake:
         if len(self.snake) < 5:  # fitEllipse richiede almeno 5 punti
             return None
 
-        # Reshape the snake array for OpenCV's fitEllipse function
+        # reshape per OpenCV fitEllipse
         snake_reshaped = self.snake.reshape((-1, 1, 2)).astype(np.int32)
 
         ellipse = cv2.fitEllipse(snake_reshaped)
         (x, y), (MA, ma), angle = ellipse  # MA: asse maggiore, ma: asse minore
 
-        if MA == 0:  # Evita la divisione per zero
+        if MA == 0:
             return 0
 
-        return ma / MA  # Rapporto tra asse minore e maggiore
+        return ma / MA
 
     def get_info_snake(self):
         return {
