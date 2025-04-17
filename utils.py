@@ -1,12 +1,10 @@
 import cv2
-from matplotlib import pyplot as plt
+
 import numpy as np
 from skimage.color import rgb2gray
 from skimage.filters import gaussian
 from skimage.segmentation import active_contour
 from Snake import Snake
-from expl import explain_asp
-from translate_dag import get_expl_from_dag
 import utils_GUI
 
 
@@ -60,16 +58,19 @@ def generate_asp(features):
 
 
 def get_features(img_name, rect, label):
-    img = cv2.imread(f"{img_name}.jpg")
+    print(img_name)
+    img = cv2.imread(f"{img_name}")
     
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     features = []
 
-    x = int(rect.get_x())
-    y = int(rect.get_y())
-    w = int(rect.get_width())
-    h = int(rect.get_height())
+    x1, y1, x2, y2 = rect
+    x = x1
+    y = y1
+    w = x2 - x1
+    h = y2 - y1
+
 
     subimage = img[y:y+h, x:x+w]
 
@@ -198,28 +199,4 @@ def get_head_contour(image):
     else:
         print("No circles were detected, so no snakes were plotted.")
         return None, None, None
-
-
-
-def generate_expl(image):
-    explain_asp()
-    expl1, expl2 = get_expl_from_dag()
-
-    expl = expl1 + "\n\n" + expl2
-
-    fig = plt.figure(figsize=(14, 8))
-    gs = fig.add_gridspec(1, 2, width_ratios=[3, 2])  # 3:2 = 60% - 40%
-
-    # Aggiungi l'asse per l'immagine
-    ax_img = fig.add_subplot(gs[0])
-    ax_img.imshow(image)
-    ax_img.axis("off")  # Nasconde gli assi
-
-    # Aggiungi l'asse per il testo
-    ax_text = fig.add_subplot(gs[1])
-    ax_text.axis("off")  # Nasconde gli assi del testo
-
-    ax_text.text(0, 0.5, expl, fontsize=12, va="center", ha="left", wrap=True)
-
-    # Mostra la finestra
-    plt.show()
+    
